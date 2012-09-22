@@ -1,0 +1,13 @@
+if [ $# -ne 4 ] ; then
+echo "Usage: $0 <via-host> <local-port> <external-host> <external-port>"
+exit 1
+fi
+VIAHOST=$1
+LOCALPORT=$2
+EXTERNALHOST=$3
+EXTERNALPORT=$4
+# port forward
+ssh $VIAHOST -L $LOCALPORT:$EXTERNALHOST:$EXTERNALPORT
+
+# reverse port forward
+#ssh $VIAHOST -R $EXTERNALPORT:$LOCALIP:$LOCALPORT
