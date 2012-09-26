@@ -1,0 +1,74 @@
+if [ $# -ne 3 ]
+then
+  echo "Usage: `basename $0` <google-docs-title> <title> <header>"
+  exit
+fi
+
+set -e
+CSV="./testquiz.csv"
+HEADER='<!DOCTYPE HTML><html lang="no-NB"><head>
+<title>TITLE</title><meta charset="UTF-8">
+<meta name="viewport" content="width=1274, user-scalable=no">
+<link rel="stylesheet" href="themes/ribbon/styles/style.css">
+<link rel="stylesheet" href="themes/ribbon/styles/print.css" media="print">
+<!-- To apply styles to the certain 
+slides use slide ID to get needed elements -->
+<style>
+	h1 { text-align:center; font-size:55px; }
+	p {text-align:center; font-size:45px;}
+	blockquote p {text-align:center; font-size:25px;}
+	.slide section::before { background: none; }
+	.slide:after { content: none; }
+	.slide section { 
+		background: #FFFFFF url(pictures/huset.png) 
+			no-repeat left bottom; margin: 0px 0px 0px 40px; }
+</style>
+</head><body class="list"><header class="caption"><h1>TITLE</h1>
+<p>INFO</p></header><div class="slide" id="intro"><div>
+<section><header><h1>TITLE</h1><br><h1>INFO</h1>
+</header></section></div></div>'
+
+FOOTER="<script src="scripts/script.js"></script></body></html>"
+
+google docs get "$1" $CSV --format=csv
+
+csvtool col 1-2 $CSV.csv | csvtool drop 1 - | csvtool head 25 - | csvtool readable - > round1.tmp
+csvtool col 1-2 $CSV.csv | csvtool drop 27 - | csvtool head 25 - | csvtool readable -> round2.tmp
+rm $CSV.csv
+TITLE="$2"
+INFO="$3"
+
+Q="<div class="slide" id="NUMBER"><div>
+                <section>
+                        <header>
+                                <h1>Spørsmål NUMBER</h1>
+                        </header>
+                        <p>QUESTION</p>
+                </section>
+        </div></div>"
+
+FILENAME="runde_1.html"
+QUESTIONS=""
+while read line; do
+	NUMBER=$(echo "$line" | cut -d ' ' -f 1 | sed -e 's|^ *||g' -e 's| *$||g')
+	QUESTION=$(echo "$line" | cut -d ' ' -f 2- | sed -e 's|^ *||g' -e 's| *$||g') 
+	HTML=$(echo "$Q" | sed -e "s|NUMBER|$NUMBER|g" -e "s|QUESTION|$QUESTION|g")
+	QUESTIONS=$( echo -e "$QUESTIONS\n$HTML")
+done < round1.tmp
+echo "$HEADER" | sed -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g" > $FILENAME
+echo "$QUESTIONS" >> $FILENAME
+echo "$FOOTER" >> $FILENAME
+
+FILENAME="runde_2.html"
+QUESTIONS=""
+while read line; do
+        NUMBER=$(echo "$line" | cut -d ' ' -f 1 | sed -e 's|^ *||g' -e 's| *$||g')
+        QUESTION=$(echo "$line" | cut -d ' ' -f 2- | sed -e 's|^ *||g' -e 's| *$||g')
+        HTML=$(echo "$Q" | sed -e "s|NUMBER|$NUMBER|g" -e "s|QUESTION|$QUESTION|g")
+        QUESTIONS=$( echo -e "$QUESTIONS\n$HTML")
+done < round2.tmp
+echo "$HEADER" | sed -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g" > $FILENAME
+echo "$QUESTIONS" >> $FILENAME
+echo "$FOOTER" >> $FILENAME
+
+rm round1.tmp round2.tmp
