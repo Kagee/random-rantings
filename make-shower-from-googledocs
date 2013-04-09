@@ -1,6 +1,6 @@
-if [ $# -ne 3 ]
+if [ $# -ne 5 ]
 then
-  echo "Usage: `basename $0` <google-docs-title> <title> <header>"
+  echo "Usage: `basename $0` <google-docs-title> <title> <header> <theme> <prefix>"
   exit
 fi
 
@@ -9,8 +9,7 @@ CSV="./testquiz.csv"
 HEADER='<!DOCTYPE HTML><html lang="no-NB"><head>
 <title>TITLE</title><meta charset="UTF-8">
 <meta name="viewport" content="width=1274, user-scalable=no">
-<link rel="stylesheet" href="themes/ribbon/styles/style.css">
-<link rel="stylesheet" href="themes/ribbon/styles/print.css" media="print">
+<link rel="stylesheet" href="shower/themes/THEME/styles/screen.css">
 <!-- To apply styles to the certain 
 slides use slide ID to get needed elements -->
 <style>
@@ -28,7 +27,7 @@ slides use slide ID to get needed elements -->
 <section><header><h1>TITLE</h1><br><h1>INFO</h1>
 </header></section></div></div>'
 
-FOOTER="<script src="scripts/script.js"></script></body></html>"
+FOOTER='<script src="shower/shower.min.js"></script></body></html>'
 
 google docs get "$1" $CSV --format=csv
 
@@ -37,6 +36,8 @@ csvtool col 1-2 $CSV.csv | csvtool drop 27 - | csvtool head 25 - | csvtool reada
 rm $CSV.csv
 TITLE="$2"
 INFO="$3"
+THEME="$4"
+PREFIX="$5"
 
 Q="<div class="slide" id="NUMBER"><div>
                 <section>
@@ -47,7 +48,7 @@ Q="<div class="slide" id="NUMBER"><div>
                 </section>
         </div></div>"
 
-FILENAME="runde_1.html"
+FILENAME="${PREFIX}runde-1.html"
 QUESTIONS=""
 while read line; do
 	NUMBER=$(echo "$line" | cut -d ' ' -f 1 | sed -e 's|^ *||g' -e 's| *$||g')
@@ -55,11 +56,11 @@ while read line; do
 	HTML=$(echo "$Q" | sed -e "s|NUMBER|$NUMBER|g" -e "s|QUESTION|$QUESTION|g")
 	QUESTIONS=$( echo -e "$QUESTIONS\n$HTML")
 done < round1.tmp
-echo "$HEADER" | sed -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g" > $FILENAME
+echo "$HEADER" | sed -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g" -e "s|THEME|$THEME|g" > $FILENAME
 echo "$QUESTIONS" >> $FILENAME
 echo "$FOOTER" >> $FILENAME
 
-FILENAME="runde_2.html"
+FILENAME="${PREFIX}runde-2.html"
 QUESTIONS=""
 while read line; do
         NUMBER=$(echo "$line" | cut -d ' ' -f 1 | sed -e 's|^ *||g' -e 's| *$||g')
@@ -67,8 +68,9 @@ while read line; do
         HTML=$(echo "$Q" | sed -e "s|NUMBER|$NUMBER|g" -e "s|QUESTION|$QUESTION|g")
         QUESTIONS=$( echo -e "$QUESTIONS\n$HTML")
 done < round2.tmp
-echo "$HEADER" | sed -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g" > $FILENAME
-echo "$QUESTIONS" >> $FILENAME
-echo "$FOOTER" >> $FILENAME
+echo "$HEADER" | sed -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g" -e "s|THEME|$THEME|g" > $FILENAME
+echo "$QUESTIONS" >> "$FILENAME"
+echo "$FOOTER" >> "$FILENAME"
 
 rm round1.tmp round2.tmp
+echo "Finished"
