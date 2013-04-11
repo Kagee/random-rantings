@@ -1,9 +1,15 @@
 if [ $# -ne 4 ] ; then
-echo "Usage: $0 <via-host> <local-port> <external-host> <external-port>"
+echo "Usage: $0 <local-port> <via-host> <external-host> <external-port>"
+echo "Make a tunnel from localhost port <local-port>, through <via-host> to <external-host> port <external-port>"
+echo 
+echo "Example:"
+echo "  $0 8022 myuser@firewall.at.work my.machine.ip 22"
+echo "  This will allow you to reach your work machine over SSH by connecting to localhost port 8022"
 exit 1
 fi
-VIAHOST=$1
-LOCALPORT=$2
+
+LOCALPORT=$1
+VIAHOST=$2
 EXTERNALHOST=$3
 EXTERNALPORT=$4
 # port forward
