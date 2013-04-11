@@ -1,10 +1,15 @@
+#! /bin/sh
 if [ $# -ne 4 ] ; then
-echo "Usage: $0 <local-port> <via-host> <external-host> <external-port>"
+NAME=$(basename $0)
+echo "To few arguments (${#} of 4)"
+echo "Usage: ${NAME} <local-port> <via-host> <external-host> <external-port>"
 echo "Make a tunnel from localhost port <local-port>, through <via-host> to <external-host> port <external-port>"
 echo 
 echo "Example:"
-echo "  $0 8022 myuser@firewall.at.work my.machine.ip 22"
+echo
+echo "  ${NAME} 8022 myuser@firewall.at.work my.machine.ip 22"
 echo "  This will allow you to reach your work machine over SSH by connecting to localhost port 8022"
+echo
 exit 1
 fi
 
@@ -13,7 +18,10 @@ VIAHOST=$2
 EXTERNALHOST=$3
 EXTERNALPORT=$4
 # port forward
-ssh $VIAHOST -L $LOCALPORT:$EXTERNALHOST:$EXTERNALPORT
+
+echo "Making a tunnel from localhost port ${LOCALPORT}, through ${VIAHOST} to ${EXTERNALHOST} port ${EXTERNALPORT}"
+echo "Press Ctrl+C to disconnect"
+ssh -N $VIAHOST -L $LOCALPORT:$EXTERNALHOST:$EXTERNALPORT
 
 # reverse port forward
 #ssh $VIAHOST -R $EXTERNALPORT:$LOCALIP:$LOCALPORT
