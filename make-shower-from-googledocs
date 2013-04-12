@@ -20,12 +20,21 @@ slides use slide ID to get needed elements -->
 	.slide:after { content: none; }
 	.slide section { 
 		background: #FFFFFF url(pictures/huset.png) 
-			no-repeat left bottom; margin: 0px 0px 0px 40px; }
+			no-repeat left bottom; margin: 0px 0px 0px 40px; 
+    }
+    .logo {
+        height: 25px;
+    }
+
 </style>
 </head><body class="list"><header class="caption"><h1>TITLE</h1>
-<p>INFO</p></header><div class="slide" id="intro"><div>
-<section><header><h1>TITLE</h1><br><h1>INFO</h1>
-</header></section></div></div>'
+<p>INFO</p></header>
+<div class="slide" id="intro"><div>
+<section><header>
+<h1>TITLE</h1><br><h1>INFO</h1>
+</header></section>
+<div style="position: absolute; bottom: 0px; left: 0px; right: 0px; text-align: center;"><img class="logo" src="huset.jpg" /> TITLE - INFO </div>
+</div></div>'
 
 FOOTER='<script src="shower/shower.min.js"></script></body></html>'
 
@@ -39,21 +48,22 @@ INFO="$3"
 THEME="$4"
 PREFIX="$5"
 
-Q="<div class="slide" id="NUMBER"><div>
+Q='<div class="slide" id="NUMBER"><div>
                 <section>
                         <header>
                                 <h1>Spørsmål NUMBER</h1>
                         </header>
                         <p>QUESTION</p>
                 </section>
-        </div></div>"
+<div style="position: absolute; bottom: 0px; left: 0px; right: 0px; text-align: center;"><img class="logo" src="huset.jpg" /> TITLE - INFO</div>
+        </div></div>'
 
 FILENAME="${PREFIX}runde-1.html"
 QUESTIONS=""
 while read line; do
 	NUMBER=$(echo "$line" | cut -d ' ' -f 1 | sed -e 's|^ *||g' -e 's| *$||g')
 	QUESTION=$(echo "$line" | cut -d ' ' -f 2- | sed -e 's|^ *||g' -e 's| *$||g') 
-	HTML=$(echo "$Q" | sed -e "s|NUMBER|$NUMBER|g" -e "s|QUESTION|$QUESTION|g")
+	HTML=$(echo "$Q" | sed -e "s|NUMBER|$NUMBER|g" -e "s|QUESTION|$QUESTION|g" -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g")
 	QUESTIONS=$( echo -e "$QUESTIONS\n$HTML")
 done < round1.tmp
 echo "$HEADER" | sed -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g" -e "s|THEME|$THEME|g" > $FILENAME
@@ -65,7 +75,7 @@ QUESTIONS=""
 while read line; do
         NUMBER=$(echo "$line" | cut -d ' ' -f 1 | sed -e 's|^ *||g' -e 's| *$||g')
         QUESTION=$(echo "$line" | cut -d ' ' -f 2- | sed -e 's|^ *||g' -e 's| *$||g')
-        HTML=$(echo "$Q" | sed -e "s|NUMBER|$NUMBER|g" -e "s|QUESTION|$QUESTION|g")
+        HTML=$(echo "$Q" | sed -e "s|NUMBER|$NUMBER|g" -e "s|QUESTION|$QUESTION|g" -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g")
         QUESTIONS=$( echo -e "$QUESTIONS\n$HTML")
 done < round2.tmp
 echo "$HEADER" | sed -e "s|TITLE|$TITLE|g" -e "s|INFO|$INFO|g" -e "s|THEME|$THEME|g" > $FILENAME
