@@ -35,7 +35,7 @@ def main():
     
 def init():
     debug("Starting init");
-    global dis;
+    global dis,  gc;
     debug("Remove stdout to fix python-xlib bug")
     sys.stdout.flush()
     sys.stdout = NullDevice()
@@ -50,6 +50,24 @@ def init():
     global root_window;
     root_window = screen.root;
     debug("root is %s" % root_window.__class__ );
+#(r,g,b) blue = (0,0,65535)
+    colormap = screen.default_colormap;
+    color = colormap.alloc_color(0, 0, 65535)
+# Xor it because we'll draw with X.GXxor function 
+    xor_color = color.pixel ^ 0xffffff 
+    gc = root_window.create_gc(
+            line_width = 4,
+            line_style = X.LineSolid,
+            fill_style = X.FillOpaqueStippled,
+            fill_rule  = X.WindingRule,
+            cap_style  = X.CapButt,
+            join_style = X.JoinMiter,
+            foreground = xor_color,
+            background = screen.black_pixel,
+            function = X.GXxor, 
+            graphics_exposures = False,
+            subwindow_mode = X.IncludeInferiors,
+            )  
     debug("Finished init")
     
 def event_parser():
@@ -66,6 +84,8 @@ def event_parser():
             starty = event.root_y;
             draw_rectangle();
             rcx = rcy = rcw = rch;
+            rcx = event.root_x;
+            rcy = event.root_y;
         elif event.type == X.ButtonRelease:
             debug(event)
             endx = event.root_x;
@@ -73,11 +93,19 @@ def event_parser():
             done = True;
         elif event.type == X.MotionNotify:
             draw_rectangle();
+            rcw = abs(rcx - event.root_x);
+            rch = abs(rcy - event.root_y);
+            if (rcx > event.root_x):
+                rcx = event.root_x;
+            if (rcy > event.root_y):
+                rcy = event.root_y;
+            draw_rectangle();
+
     debug("Finished listening for events");
     
 def grabby():
     debug("Starting grab");
-    root_window.grab_pointer ( True, (X.ButtonPressMask | X.ButtonMotionMask | X.ButtonReleaseMask), X.GrabModeAsync, X.GrabModeAsync, 0, 0, X.CurrentTime );
+    root_window.grab_pointer ( True, (X.ButtonPressMask | X.ButtonMotionMask | X.ButtonReleaseMask), X.GrabModeAsync, X.GrabModeAsync, X.NONE, X.NONE, X.CurrentTime );
     root_window.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync,X.CurrentTime);
     debug("Finished grab");
 
@@ -88,25 +116,9 @@ def ungrabby():
     debug("Finished ungrab");    
     
 def draw_rectangle():
-    global startx, starty, endx, endy,  rcx, rcy, rcw,  rch;
+    global startx, starty, endx, endy,  rcx, rcy, rcw,  rch,  gc;
     #print "x(%d,%d), y(%d,%d)" % (min(startx,  endx), max(startx,  endx), min(starty, endy), max(starty, endy) );
-    gc = root_window.create_gc(
-        function = X.GXor, 
-        foreground = screen.black_pixel,
-        background = screen.white_pixel,
-        line_width = 4,
-        line_style = X.LineSolid, 
-        cap_style = X.CapButt, 
-        join_style         = X.JoinMiter, 
-        plane_mask         = X.AllPlanes, 
-        fill_style         = FillOpaqueStippled,
-        fill_rule          = WindingRule,
-        graphics_exposures = False,
-        clip_x_origin      = 0,
-        clip_y_origin      = 0,
-        clip_mask          = X.NONE,
-        subwindow_mode     = X.IncludeInferiors
-    )
+            
     width = endx - startx;
     height = endy - starty;
     root_window.rectangle( gc, rcx, rcy, rcw, rch);
