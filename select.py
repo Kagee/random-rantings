@@ -1,7 +1,9 @@
 #!/usr/bin/python
 import sys
 import os
-# Based on http://digitalfoo.net/posts/drawing-rectangles-on-the-screen-with-xlib-c-library
+# Reimplementation of 
+# http://digitalfoo.net/posts/drawing-rectangles-on-the-screen-with-xlib-c-library
+# in python-xlib. 
 from Xlib import X, display, Xutil, Xatom
 from Xlib.protocol import event
 
@@ -50,10 +52,10 @@ def init():
     global root_window;
     root_window = screen.root;
     debug("root is %s" % root_window.__class__ );
-#(r,g,b) blue = (0,0,65535)
     colormap = screen.default_colormap;
+    #(r,g,b) blue = (0,0,65535)
     color = colormap.alloc_color(0, 0, 65535)
-# Xor it because we'll draw with X.GXxor function 
+    # Xor it because we'll draw with X.GXxor function 
     xor_color = color.pixel ^ 0xffffff 
     gc = root_window.create_gc(
             line_width = 4,
@@ -117,20 +119,9 @@ def ungrabby():
     
 def draw_rectangle():
     global startx, starty, endx, endy,  rcx, rcy, rcw,  rch,  gc;
-    #print "x(%d,%d), y(%d,%d)" % (min(startx,  endx), max(startx,  endx), min(starty, endy), max(starty, endy) );
-            
     width = endx - startx;
     height = endy - starty;
     root_window.rectangle( gc, rcx, rcy, rcw, rch);
-#    /* create a graphics context with a line on it */
-#    gc = XCreateGC(display, root_window,
-#                   GCFunction    | GCPlaneMask   | GCForeground |
-#                   GCBackground  | GCLineWidth   | GCLineStyle  |
-#                   GCCapStyle    | GCJoinStyle   | GCFillStyle  |
-#                   GCFillRule    | GCGraphicsExposures          |
-#                   GCClipXOrigin | GCClipYOrigin |  GCClipMask  |
-#                   GCSubwindowMode,
-#                   &gc_val);
 
 def final():
     global startx, starty, endx, endy,  rcx, rcy, rcw,  rch,  output;
