@@ -112,8 +112,8 @@ elif [ ${TARGET} = "window" ]; then
 else
   SELECTOR="python"
   echo "Custom area chosen."
-  zenity --info --title "Instructions" --text "Click and draw a rectangle over the area of the screen you want top record. When you release the mouse button, the recording will start."
-  SELECTDATA=$(grep -A 14 __BASE64_GZIP_PYTHON_SELECT_PROGRAM_BELOW__ ${0} | tail -14 | base64 -d | zcat | python)
+  zenity --info --no-wrap --title "Instructions" --text "Click and draw a rectangle over the area of the screen \nyou want top record. When you release the mouse \nbutton, the recording will start."
+  SELECTDATA=$(grep -A 46 __PYTHON_SELECT_PROGRAM_BELOW__ screencast.sh | tail -46 | python)
 fi
 
 # Get Window ID and dimensions, make sure X and Y dimensions are
@@ -169,22 +169,50 @@ gst-launch-0.10 -q -e ximagesrc ${XIMAGESRCPARAMS} do-timestamp=1 use-damage=0 \
 
 echo "Recording done, file is ${FILENAME}"
 exit 0
-# Use 
-# grep -A 14 __BASE64_GZIP_PYTHON_SELECT_PROGRAM_BELOW__ screencast.sh | tail -14 | \
-# base64 -d | zcat > code.py
-# to read the code
-__BASE64_GZIP_PYTHON_SELECT_PROGRAM_BELOW__
-H4sIAKugK1IAA4VUbY/UNhD+nl+Rgk6bCJM71F4/7NVILRQE6h0VIHUl1EZeZ5KY89rGL5dY0P/e
-cbJZbuGg+2Ezz+PxzOPxjO//cBqcPd0KdWqi77XKxM5o63MXHdEua63e5Rsptvme35BGOCNZJJvg
-hSQb5vXus1tlrPaaa7n4ww0oP697sYOFdhLAZDp4Ezy9d1I4z6wfy6Y6KUA1szFxceFmYxCN7yer
-B9H1vmzu5aLNJagCFVfMdjflL/RRDtJBvjDvHv2dJdv5BjNWrQyuL8qMS+ZcfhWkfAo3gkNRrrO8
-gTYfrPBQOJAtcYnLDTreikBv78kauq9I9XT+InfLN5l1PYO6vkuHo03luAU8Q5kNgrrKau0zvkML
-5bAgfY0V1XbHTMYp31VMSs1nrjgjZ+Tn8/Mfz8tsxMXKiBHkP2djO/3yrKODqDA681B3vJBCQT1V
-kf5EJuB8lEA31R8I3mgpGtIKKQ/0MwSvDPsQ4I0XxkjYr9swLf8lVCNU9xoR4cwctj1h5rfgPXmv
-hTqQLxFcYm0tabWFzuqgGjpysmX8eo9ctZWI6ukYpA2Ke6EV7n2+GbUlnWWmF9zVMBrtggVHnzG8
-a+LCdkApeqh3ukm5XiguQwMvVAtWaOtIqm2F+7e1QRkoonhrA5BiUyWhWv2Jwdwlc9efFuZSp9xH
-1GuQwBwkriQoCsNdYr5fXVT8Dnz16ur3z58nwVqchrc4B+XFQc01xK1mtpnl/H/M4yiNVjCXACP2
-QkKutM8Ti40L2FkKRl9PU4jdlWYFKh8NUHp07tTlI410oD09u0CA6ixwz1QnoejISCIZSF9eTH4w
-dWg9JhQXFBGBvCPBvmYpxaQ2nfNr37nYV/jfxvX3BQyUbV0xPlxkTGQ/kXEh40SKthgfH9xS2C/U
-o0N8fNgyORwd6Nsymiqoo2766mYWh8MF39EB34q9fxuSyaV2kExjMVE+v5knH1fzk7laj2Q242od
-ySq9nsg9GCYzcQ96spoGfrVGcn42V+v+3+w/VrpZcvwFAAA=
+__PYTHON_SELECT_PROGRAM_BELOW__
+import sys,os
+from Xlib import X,display,Xutil,Xatom
+from Xlib.protocol import event
+from time import sleep
+output="%(startx)d.%(endx)d.%(starty)d.%(endy)d.%(width)d.%(height)d" if len(sys.argv)<=1 else sys.argv[1]
+sys.stdout.flush()
+class NullDevice():
+ def write(self,s):
+  pass
+sys.stdout=NullDevice()
+d=display.Display()
+sys.stdout=sys.__stdout__
+sys.stdout.flush()
+s=d.screen()
+wi=s.root
+cm=s.default_colormap
+c=cm.alloc_color(0,0,65535)
+xc=c.pixel^0xffffff 
+g=wi.create_gc(line_width=4,line_style=X.LineSolid,fill_style=X.FillOpaqueStippled,fill_rule=X.WindingRule,cap_style=X.CapButt,join_style=X.JoinMiter,foreground=xc,background=s.black_pixel,function=X.GXxor,graphics_exposures=False,subwindow_mode=X.IncludeInferiors,)
+wi.grab_pointer(True,(X.ButtonPressMask|X.ButtonMotionMask|X.ButtonReleaseMask),X.GrabModeAsync,X.GrabModeAsync,X.NONE,X.NONE,X.CurrentTime);
+wi.grab_keyboard(True,X.GrabModeAsync,X.GrabModeAsync,X.CurrentTime);
+done=False;
+while not done:
+ e=d.next_event()
+ if e.type==X.ButtonPress:
+  x=y=w=h=0;
+  wi.rectangle(g,x,y,w,h);
+  x=e.root_x;
+  y=e.root_y;
+ elif e.type==X.ButtonRelease:
+  done=True;
+ elif e.type==X.MotionNotify:
+  wi.rectangle(g,x,y,w,h);
+  w=abs(x-e.root_x);
+  h=abs(y-e.root_y);
+  if(x>e.root_x):
+   x=e.root_x;
+  if(y>e.root_y):
+   y=e.root_y;
+  wi.rectangle(g,x,y,w,h);
+d.ungrab_pointer(X.CurrentTime);
+d.ungrab_keyboard(X.CurrentTime);
+wi.rectangle(g,x,y,w,h);
+d.flush();
+d.close();
+print output%{'startx':x,'starty':y,'endx':x+w,'endy':y+h,'width':w,'height':h}
