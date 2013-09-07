@@ -2,8 +2,8 @@
 import sys,os
 from Xlib import X,display,Xutil,Xatom
 from Xlib.protocol import event
-# Avalible formats are startx, starty, endx, endy, width and height
-output="sx %(startx)d ex %(endx)d sy %(starty)d ey %(endy)d" if len(sys.argv)<=1 else sys.argv[1]
+from time import sleep
+output="%(startx)d.%(endx)d.%(starty)d.%(endy)d.%(width)d.%(height)d" if len(sys.argv)<=1 else sys.argv[1]
 sys.stdout.flush()
 class NullDevice():
  def write(self,s):
@@ -44,4 +44,4 @@ d.ungrab_keyboard(X.CurrentTime);
 wi.rectangle(g,x,y,w,h);
 d.flush();
 d.close();
-print output % {'startx':x,'starty':y,'endx':x+w,'endy':y+h,'width':w,'height':h}
+print output%{'startx':x,'starty':y,'endx':x+w,'endy':y+h,'width':w,'height':h}
