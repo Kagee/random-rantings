@@ -7,7 +7,6 @@
 # make mp4 files with x264, I didn't bother with free codecs.
 # 
 # To use the "Selected area" you will need python and python-xlib
-# (and grep and tail and base64 and zcat, but you probably have those)
 #
 # So this script allows you to create screencasts on Linux, with optional
 # sound inputs (both Microphone and system sounds). It stores system sounds
