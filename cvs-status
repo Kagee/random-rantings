@@ -1,2 +1,2 @@
 #! /bin/bash
-cvs -q status | iconv -f iso-8859-1 -t utf-8 | gawk -f /home/hildenae/bin/cvs-status.awk
+cvs -q status | iconv -f iso-8859-1 -t utf-8 | gawk -f $(dirname $0)/cvs-status.awk
