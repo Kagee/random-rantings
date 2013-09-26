@@ -7,8 +7,14 @@ echo "Make a tunnel from localhost port <local-port>, through <via-host> to <ext
 echo 
 echo "Example:"
 echo
-echo "  ${NAME} 8022 myuser@firewall.at.work my.machine.ip 22"
+echo "  ${NAME} 8022 myuser@firewall.at.work my.work.machine 22"
 echo "  This will allow you to reach your work machine over SSH by connecting to localhost port 8022"
+echo
+echo " ${NAME} 5050 'myotheruser@localhost -p 8022' localhost 5050"
+echo " This will allow you to reach localhost port 5050 on my.work.machine by connecting to localhost port 5050"
+echo
+echo " ${NAME} 8080 mylastuser@my.other.machine localhost 8080"
+echo " This will allow you to reach localhost port 8080 on my.other.machine by connecting to localhost port 8080"
 echo
 exit 1
 fi
