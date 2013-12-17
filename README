@@ -1,3 +1,7 @@
 This is a repository of useful script created by me
 
-make-shower-from-google-docs probably requires you to install googlecl and csvtool. port-forward will only require openssh-client
+make-shower-from-google-docs probably requires you to install googlecl and csvtool. 
+
+port-forward will only require openssh-client
+
+cvs-status requires cvs, iconv and gawk (iconv because the server i use cvs against is iso-8859-1, not utf-8)
