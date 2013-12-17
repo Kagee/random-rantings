@@ -1,0 +1,2 @@
+#! /bin/sh
+mosh o ./bin/irc
