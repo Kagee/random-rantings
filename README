@@ -5,3 +5,8 @@ make-shower-from-google-docs probably requires you to install googlecl and csvto
 port-forward will only require openssh-client
 
 cvs-status requires cvs, iconv and gawk (iconv because the server i use cvs against is iso-8859-1, not utf-8)
+
+reto requires bash, grub2, sudo and visudo, dbus-send, grub-reboot, and a system that uses Consolekit (most *buntu's)
+It also requires the following changes: 
+/etc/default/grub: GRUB_DEFAULT=saved
+visudo: %sudo   ALL=(root) NOPASSWD: /usr/sbin/grub-reboot

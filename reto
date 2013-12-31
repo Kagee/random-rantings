@@ -1,0 +1,22 @@
+#! /bin/bash
+set -x
+
+# Requirements:
+# /etc/default/grub: GRUB_DEFAULT=saved
+# visudo: %sudo   ALL=(root) NOPASSWD: /usr/sbin/grub-reboot
+# Remenber that GRUB_DEFAULT is now saved. If you select Windows manually
+# on a boot, it will continue to boot windows unthil you select something
+# else 
+
+THINGY_CONSOLEKIT="dbus-send --system --print-reply --dest=org.freedesktop.ConsoleKit /org/freedesktop/ConsoleKit/Manager"
+
+GRUBLIST=$(grep "^menuentry '[UW]" /boot/grub/grub.cfg | cut -d "'" -f2)
+SELECTED=$(echo "${GRUBLIST}" | zenity --list --column='Velg GRUB-oppføring' 2>/dev/null | cut -d '|' -f1)
+
+if [ -z "${SELECTED}" ]; then
+  echo "No choice made reboot option, assuming cancel."
+  exit 1
+fi
+
+sudo grub-reboot "${SELECTED}"
+$THINGY_CONSOLEKIT org.freedesktop.ConsoleKit.Manager.Restart
