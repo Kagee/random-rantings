@@ -5,14 +5,26 @@ set -x
 # /etc/default/grub: GRUB_DEFAULT=saved
 # visudo: %sudo   ALL=(root) NOPASSWD: /usr/sbin/grub-reboot
 # Remenber that GRUB_DEFAULT is now saved. If you select Windows manually
-# on a boot, it will continue to boot windows unthil you select something
+# on a boot, it will continue to boot windows until you select something
 # else 
 
 THINGY_CONSOLEKIT="dbus-send --system --print-reply --dest=org.freedesktop.ConsoleKit /org/freedesktop/ConsoleKit/Manager"
 
-# This will select most ubuntus and windowses.
+# This will select ubuntus and windowses.
 GRUBLIST=$(grep "^menuentry '[UW]" /boot/grub/grub.cfg | cut -d "'" -f2)
-SELECTED=$(echo "${GRUBLIST}" | zenity --list --column='Velg GRUB-oppføring' 2>/dev/null | cut -d '|' -f1)
+echo $DISPLAY
+if [ -z "${DISPLAY}" ]; then
+  # Suggestions for doing this another 
+  # (better) way is (highly) appreciated
+  TMPFILE=$(mktemp)
+  exec 3>$TMPFILE
+  echo "${GRUBLIST}" | awk 'BEGIN { ORS="\0" } {print $0 "\0" }' | xargs --null dialog --output-fd 3 --menu "Select GRUB record" 0 0 3
+  exec 3>&-
+  SELECTED=$(cat "${TMPFILE}")
+  rm "${TMPFILE}"
+else
+  SELECTED=$(echo "${GRUBLIST}" | zenity --list --column='Select GRUB record' 2>/dev/null | cut -d '|' -f1)
+fi
 
 if [ -z "${SELECTED}" ]; then
   echo "No choice made reboot option, assuming cancel."
