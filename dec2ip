@@ -1,0 +1,37 @@
+#! /bin/bash
+#set -x
+#set -e
+
+function dectoip {
+  echo "$1" | awk {'print rshift(and($1, 0xFF000000), 24) "." rshift(and($1,0x00FF0000), 16) "." rshift(and($1, 0x0000FF00), 8) "." and($1, 0x000000FF) '}
+}
+function hextoip {
+  dectoip "$(($1))"
+}
+NAME=$(basename $0)
+
+case "$NAME" in
+dec2ip)
+  FUNC="dectoip"
+  PREVAL=""
+  ;;
+hex2ip)
+  FUNC="hextoip"
+  PREVAL="0x"
+  ;;
+*)
+  echo "I don't answer to the name $NAME" > /dev/stderr
+  exit 1;
+  ;;
+esac
+
+if [ $# -eq 0 ]; then
+  while read VAL;
+    do $FUNC "$PREVAL$VAL"
+  done < /dev/stdin
+else
+  for VAL in "$@"
+    do $FUNC "$PREVAL$VAL"
+  done
+fi;
+
