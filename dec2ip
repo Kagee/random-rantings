@@ -1,6 +1,6 @@
-#! /bin/bash
-#set -x
-#set -e
+#!/usr/bin/env bash
+#set -o xtrace
+source harden.sh
 
 function dectoip {
   echo "$1" | awk {'print rshift(and($1, 0xFF000000), 24) "." rshift(and($1,0x00FF0000), 16) "." rshift(and($1, 0x0000FF00), 8) "." and($1, 0x000000FF) '}

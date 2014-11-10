@@ -1,4 +1,5 @@
-#! /bin/sh
+#!/usr/bin/env bash
+source harden.sh
 if [ $# -ne 4 ] ; then
 NAME=$(basename $0)
 echo "To few arguments (${#} of 4)"
