@@ -14,10 +14,12 @@ case "$NAME" in
 dec2ip)
   FUNC="dectoip"
   PREVAL=""
+  HELP="decimal number"
   ;;
 hex2ip)
   FUNC="hextoip"
   PREVAL="0x"
+  HELP="hexadecimal number"
   ;;
 *)
   echo "I don't answer to the name $NAME" > /dev/stderr
@@ -30,8 +32,14 @@ if [ $# -eq 0 ]; then
     do $FUNC "$PREVAL$VAL"
   done < /dev/stdin
 else
-  for VAL in "$@"
-    do $FUNC "$PREVAL$VAL"
-  done
+  if [[ "$1" != "-h" && "$1" != "--help" ]]; then
+    for VAL in "$@"
+      do $FUNC "$PREVAL$VAL"
+    done
+  else
+    
+    echo "Usage: $NAME <$HELP> [<$HELP>...]"
+    echo "  or : <source of ${HELP}s> | $NAME"
+  fi
 fi;
 
