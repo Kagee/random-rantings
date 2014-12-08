@@ -27,6 +27,7 @@ EXTERNALPORT=$4
 # port forward
 
 echo "Making a tunnel from localhost port ${LOCALPORT}, through ${VIAHOST} to ${EXTERNALHOST} port ${EXTERNALPORT}"
+echo "In case this is a webpage: http://localhost:${LOCALPORT}"
 echo "Press Ctrl+C to disconnect"
 ssh -N $VIAHOST -L $LOCALPORT:$EXTERNALHOST:$EXTERNALPORT
 
