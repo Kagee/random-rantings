@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cd /home/hildenae/bin/random-rantings
 source harden.sh
 source dns.he.net.update.config 
 IP4=$(ip -4 addr show $INTERFACE | grep global | awk '/inet/{print $2}' | cut -d'/' -f1)
