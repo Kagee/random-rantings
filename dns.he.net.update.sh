@@ -9,11 +9,11 @@ OK6=$(curl --silent -k "https://dyn.dns.he.net/nic/update?hostname=$DOMAIN&passw
 
 if [ "$(echo $OK4 | grep -q -E 'nochg|good'; echo $?)" -ne 0 ]; then
   echo "Failed to update A-record for $DOMAIN: $OK4";
-else
-  echo "Updated A-record for $DOMAIN: $OK4"
+#else
+#  echo "Updated A-record for $DOMAIN: $OK4"
 fi
 if [ "$(echo $OK6 | grep -q -E 'nochg|good'; echo $?)" -ne 0 ]; then
   echo "Failed to update AAAA-record for $DOMAIN: $OK6";
-else
-  echo "Updated AAAA-record for $DOMAIN: $OK6"
+#else
+#  echo "Updated AAAA-record for $DOMAIN: $OK6"
 fi
