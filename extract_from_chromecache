@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #set -o xtrace
-source harden.sh
+W=$(dirname $0)
+source $W/harden.sh
 
 function USAGE {
   echo "Usage: "
