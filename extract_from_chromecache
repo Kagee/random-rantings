@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#set -o xtrace
+source harden.sh
+
+function USAGE {
+  echo "Usage: "
+  echo "$NAME <html file saved from chrome cache>"
+  #echo "cat <html file saved from chrome cache> | $NAME"
+  exit 1;        
+}
+
+NAME=$(basename $0)
+
+if [ $# -eq 0 ]; then
+  echo "Reading from stdin is not supported";
+  USAGE;
+  while read VAL;
+  do
+    echo "Reading from stdin is not supported";
+    exit 1;
+  done < /dev/stdin
+else
+  if [[ "$1" != "-h" && "$1" != "--help" ]]; then
+    for VAL in "$@"
+    do
+      echo "Reading from $1"
+      OFN=$(grep -o '<body>[^<]*' "$1" | grep -o '[^/]*$')
+      if [ "$OFN" = "" ]; then
+        OFN="$(basename $1).extracted"
+      fi
+      if [ "$OFN" = "" ]; then
+        OFN="$(mktmp -p .).extracted"
+      fi
+      echo "Will save output to $OFN";
+      CONT=$(awk 'BEGIN {PRE=0;} /<pre>/ { PRE=PRE+1;} PRE == 3 {print}' "$1" | sed -e's/<.*>//')
+      echo "$CONT" | cut -d' ' -f 2-17 | sed -e's/ //g' > "$OFN.tmp"
+      xxd -r -p "$OFN.tmp" > "$OFN"
+      rm "$OFN.tmp"
+    done
+  else
+    USAGE;
+  fi
+fi;
+
