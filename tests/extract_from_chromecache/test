@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#set -o xtrace
+source ../../harden.sh
+
+FILE="changing-the-subnet-mask-in-vmware-workstation-on-debian-jessie.html"
+../../extract_from_chromecache "$FILE"
+H=$(md5sum "$FILE".extracted)
+if [ "$H" = "b25878ee1e39ecd3b2600bca663c8330  ${FILE}.extracted" ]; then
+  echo "Test OK. MD5-sum for ${FILE}.extracted matches"
+else
+  echo "Test failed. MD5-sum for ${FILE}.extracted is wrong"
+  exit 1;
+fi
+rm "$FILE.extracted"
+
+FILE="vmware_workstation_subnet_mask_changed.png"
+../../extract_from_chromecache "${FILE}.html"
+
+H=$(md5sum "${FILE}")
+if [ "$H" = "6be6a8ff4ecb7d786377c650a4f7234a  ${FILE}" ]; then
+  echo "Test OK. MD5-sum for ${FILE} matches"
+else
+  echo "Test failed. MD5-sum for ${FILE} is wrong"
+  exit 1;
+fi
+rm ${FILE}
+
+
