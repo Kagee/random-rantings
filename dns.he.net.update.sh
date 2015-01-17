@@ -2,7 +2,9 @@
 cd /home/hildenae/bin/random-rantings
 source harden.sh
 source dns.he.net.update.config 
-IP4=$(ip -4 addr show $INTERFACE | grep global | awk '/inet/{print $2}' | cut -d'/' -f1)
+#IP4=$(ip -4 addr show $INTERFACE | grep global | awk '/inet/{print $2}' | cut -d'/' -f1)
+# Change this to icanhazip.com, since the IPv4 adress normally is behing a NAT
+IP4=$(wget -4 -O - http://icanhazip.com 2>/dev/null)
 IP6=$(ip -6 addr show $INTERFACE | grep global | awk '/inet6/{print $2}' | cut -d'/' -f1)
 OK4=$(curl --silent -k "https://dyn.dns.he.net/nic/update?hostname=$DOMAIN&password=$PASSWORD&myip=$IP4")
 OK6=$(curl --silent -k "https://dyn.dns.he.net/nic/update?hostname=$DOMAIN&password=$PASSWORD&myip=$IP6")
