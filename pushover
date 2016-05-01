@@ -5,8 +5,16 @@
 #
 source $HOME/.pushover.conf
 MSG="$(hostname): ${@}"
-curl -s \
+JSON=$(curl -s \
   --form-string "token=${APP_TOKEN}" \
   --form-string "user=${USER_KEY}" \
   --form-string "message=${MSG}" \
-  https://api.pushover.net/1/messages.json
+  https://api.pushover.net/1/messages.json)
+
+if [[ "$JSON" == *"\"status\":+"* ]]
+then
+  exit 0;
+else
+  echo "Error in push: ${JSON}"
+  exit 1;
+fi
