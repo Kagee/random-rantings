@@ -13,3 +13,8 @@ It also requires the following changes:
 visudo: %sudo   ALL=(root) NOPASSWD: /usr/sbin/grub-reboot
 
 dec2ip (and hex2ip) requires awk (or gawk) (and bash (dooh))
+
+pack-client requires bash, cat, tar, gpg, sed
+ Script for packing files required for a OPENVPN client
+ into a GPG password protected *.tar-file.
+

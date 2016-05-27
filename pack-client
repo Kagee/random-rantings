@@ -1,0 +1,21 @@
+#! /bin/bash
+#set -e
+#set -x
+
+# Script for packing files required for a OPENVPN client
+# into a GPG password protected *.tar-file.
+
+if [ "x" = "x${1}" ]; then
+  echo "Missing client name"
+  exit 1
+fi
+BASE=keys
+PASSWORD=$(pwgen -nc 15) 
+echo "Password for ${1} is ${PASSWORD}"
+rm -rf "${1}.tar" "${1}.tar.gpg" || true
+cat ${BASE}/client.conf | sed -e "s#placeholder.key#${1}.key#" -e "s#placeholder.crt#${1}.crt#" > /tmp/client.conf
+tar --create --directory "${BASE}" --file "${1}.tar" "ca.crt" "${1}.crt" "${1}.key" "ta.key"
+tar --append --directory "/tmp" --file "${1}.tar" "client.conf"
+echo "${PASSWORD}" | gpg --batch --passphrase-fd 0 --symmetric "${1}.tar" 2>1 | grep -v 'Reading passphrase from file descriptor 0'
+rm -rf "${1}.tar"
+rm /tmp/client.conf
