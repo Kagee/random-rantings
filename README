@@ -20,3 +20,6 @@ pack-client requires bash, cat, tar, gpg, sed
 
 splitm4achap requires ffprobe, ffmpeg, bash, sed, grep
  Script for generating ffmpeg commands for splitting mp4/m4a/m4v by chapters
+
+mergem4achap requires mp4v2-utils (mp4chaps, mp4info), ffmpeg, bc, sed, grep
+ Merges multiple m4a's files (can be modified for video) and insers chapters for files

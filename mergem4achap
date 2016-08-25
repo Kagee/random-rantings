@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+
+CCFILE="$(mktemp -p .)"
+CHAPS="output.chapters.txt"
+OUTP="output.m4a"
+
+rm -f "$CCFILE" "$CHAPS" "$OUTP"
+
+for FNAME in "$@"
+do
+    echo "file '$FNAME'" >> "$CCFILE"
+done
+
+ffmpeg -loglevel warning -f concat -i "$CCFILE" -acodec copy -vn "$OUTP"
+
+mp4chaps --remove "$OUTP"
+
+CNUM=1
+POS="000.000"
+echo "00:00:00.000 Chapter $CNUM" >> "$CHAPS"
+
+for FNAME in "$@"
+do
+  CNUM=$((CNUM + 1));
+  LEN="$(mp4info "$FNAME" | grep audio | sed -r 's/.* ([0-9]*\.[0-9]*) secs.*/\1/')"
+  POS="$(echo "$POS + $LEN" | bc)" 
+  SECS=$(echo "$POS" | sed -r 's/([^.]*)\..*/\1/')
+  MS=$(echo "$POS" | sed -r 's/[^.]*\.(.*)/\1/')
+
+  ((h=$SECS/3600))
+  ((m=($SECS%3600)/60))
+  ((s=$SECS%60))
+
+  TS="$(printf "%02d:%02d:%02d" $h $m $s).$MS"
+
+  echo "$TS Chapter $CNUM" >> "$CHAPS"
+done
+
+mp4chaps --import "${OUTP}" 
+
+rm "$CCFILE" "$CHAPS"

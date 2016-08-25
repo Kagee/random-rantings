@@ -15,6 +15,6 @@ while read C; do
   CSTART="$(echo "$C" | sed -r 's/.*start ([^,]*),.*/\1/')"
   CEND="$(echo "$C" | sed -r 's/.*end (.*).*/\1/')"
   #echo "$C $CNAME $CSTART $CEND";
-  echo 'ffmpeg -i "'$1'" -ss '$CSTART' -to '$CEND' -acodec copy -vn chapter_'$CNAME'.m4a'
+  echo 'ffmpeg -loglevel warning -i "'$1'" -ss '$CSTART' -to '$CEND' -acodec copy -vn chapter_'$CNAME'.m4a'
   CNUM=$((CNUM + 1));
 done <<< "$CHAP";
