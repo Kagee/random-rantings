@@ -8,6 +8,8 @@ if [ "x$2" != "x" ]; then
   ZF=$2
 fi
 
+echo "#! /usr/bin/env bash"
+
 while read C; do
   CNAME="$(printf "%0${ZF}d" $CNUM)"
   CSTART="$(echo "$C" | sed -r 's/.*start ([^,]*),.*/\1/')"
