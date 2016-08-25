@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+CNUM=1
+CHAP=$(ffprobe -i "$1" 2>&1 | grep -o 'Chapter.*start.*end.*[0-9]*')
+
+ZF=3
+if [ "x$2" != "x" ]; then
+  ZF=$2
+fi
+
+echo "ZF is '$ZF'"
+
+while read C; do
+  CNAME="$(printf "%0${ZF}d" $CNUM)"
+  CSTART="$(echo "$C" | sed -r 's/.*start ([^,]*),.*/\1/')"
+  CEND="$(echo "$C" | sed -r 's/.*end (.*).*/\1/')"
+  #echo "$C $CNAME $CSTART $CEND";
+  echo 'ffmpeg -i "'$1'" -ss '$CSTART' -to '$CEND' -acodec copy -vn chapter_'$CNAME'.m4a'
+  CNUM=$((CNUM + 1));
+done <<< "$CHAP";

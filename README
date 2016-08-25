@@ -18,3 +18,5 @@ pack-client requires bash, cat, tar, gpg, sed
  Script for packing files required for a OPENVPN client
  into a GPG password protected *.tar-file.
 
+splitm4achap requires ffprobe, ffmpeg, bash, sed, grep
+ Script for generating ffmpeg commands for splitting mp4/m4a/m4v by chapters
