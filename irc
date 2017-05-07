@@ -1,2 +1,2 @@
 #! /bin/sh
-mosh g
+mosh g $@
