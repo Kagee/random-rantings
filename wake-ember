@@ -1,0 +1,2 @@
+#! /bin/bash
+wakeonlan 74:D4:35:17:76:3E
