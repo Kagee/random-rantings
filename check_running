@@ -1,0 +1,19 @@
+#! /bin/bash
+if [ "$#" -ne 3 ]; then
+    echo -e "Usage: $0 PID DELAY MSG\n" \
+        "PID: to check\n" \
+        "DEALY: between checks (see man sleep)\n" \
+        "MSG: to use with pushover" 1>&2
+fi
+exit
+echo -n "Checking pid $1 every $2: "
+while true; do
+    if [ -d "/proc/$1" ]; then
+       echo -n "."
+     else
+        pushover "$3"
+        echo ""
+        exit 0
+    fi
+    sleep $2
+done
