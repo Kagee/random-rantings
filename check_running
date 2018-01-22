@@ -5,7 +5,6 @@ if [ "$#" -ne 3 ]; then
         "DEALY: between checks (see man sleep)\n" \
         "MSG: to use with pushover" 1>&2
 fi
-exit
 echo -n "Checking pid $1 every $2: "
 while true; do
     if [ -d "/proc/$1" ]; then
