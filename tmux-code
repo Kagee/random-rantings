@@ -1,0 +1,76 @@
+#! /bin/bash
+
+# Copy of /usr/lib/byobu/uptime
+# License for uptime-code
+#    uptime: condensed uptime of the machine
+#
+#    Copyright (C) 2009 Raphaël Pinson.
+#    Copyright (C) 2009 Canonical Ltd.
+#    Copyright (C) 2011-2014 Dustin Kirkland
+#
+#    Authors: Raphaël Pinson <raphink@ubuntu.com>
+#             Dustin Kirkland <kirkland@byobu.org>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, version 3 of the License.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# with colors removed
+__uptime() {
+local u= idle= str=
+ if [ -r /proc/uptime ]; then
+    read u idle < /proc/uptime
+    u=${u%.*}
+    if [ "$u" -gt 86400 ]; then
+      str="$(($u / 86400))d$((($u % 86400) / 3600))h"
+    elif [ "$u" -gt 3600 ]; then
+      str="$(($u / 3600))h$((($u % 3600) / 60))m"
+    elif [ "$u" -gt 60 ]; then
+      str="$(($u / 60))m"
+    else
+      str="${u}s"
+    fi
+  else
+    str=$(uptime | sed -e "s/.* up *//" -e "s/ *days, */d/" -e "s/:/h/" -e "s/,.*/m/")
+  fi
+  [ -n "$str" ] || return
+  printf "%s" "${str}";
+}
+
+# Based on /usr/lib/byobu/load_average
+__load() {
+  if [ -r "/proc/loadavg" ]; then
+    read one five fifteen procs lastpid < /proc/loadavg;
+    printf "$one"
+  fi
+}
+
+__reboot() {
+    if (ls /var/run/reboot-required 2>/dev/null) then 
+        printf '🔄 '; 
+    else 
+        printf ''; 
+    fi
+}
+
+case $1 in
+uptime*)
+  __uptime
+  ;;
+load*)
+  __load
+  ;;
+reboot*)
+  __reboot
+  ;;
+*)
+    printf "$(__reboot)$(__uptime) $(__load)"
+  ;;
+esac
