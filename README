@@ -25,3 +25,6 @@ mergem4achap requires mp4v2-utils (mp4chaps, mp4info), ffmpeg, bc, sed, grep
  Merges multiple m4a's files (can be modified for video) and insers chapters for files
  To run on every other file in a folder: (replace == with != to take the other half)
    mergem4achap $(find . -type f -name '*.m4a' | sort | awk 'NR % 2 != 0')
+
+hild1-install requires bash, grep, ssh, ssh-keygen, scp, apt-get
+ Script for setting up a "default" install like i like it on a new machine

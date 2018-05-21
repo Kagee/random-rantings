@@ -1,0 +1,163 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+DEBUG=3 # (0:NONE, 1:ERROR, 2:WARN, 3:INFO)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[1;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+function INFO { if [ $DEBUG -gt 2 ]; then echo -e >&2 "$GREEN[${FUNCNAME[0]}] $1$NC"; fi  }
+function WARN { if [ $DEBUG -gt 1 ]; then echo -e >&2 "$YELLOW[${FUNCNAME[0]}] $1$NC"; fi }
+function ERROR { if [ $DEBUG -gt 0 ]; then echo -e >&2 "$RED[${FUNCNAME[0]}] $1$NC"; fi }
+
+
+if [ "x" != "x${1:-}" ]; then
+  INFO "Source :${BASH_SOURCE[0]}."
+  if !(grep --silent "${1:-}" "$HOME/.ssh/config" 2>/dev/null); then
+    ERROR "Failed to find host '${1:-}', exiting."
+    exit
+  fi
+  INFO "Will copy self to '${1:-}:/tmp/hild1-install' and execute"
+  #base64 "${BASH_SOURCE[0]}" | ssh  "${1:-}" 'base64 -d > /tmp/hild1-install; chmod +x /tmp/hild1-install; /tmp/hild1-install;'
+  scp "${BASH_SOURCE[0]}" "${1:-}:/tmp/hild1-install"
+  ssh -t "${1:-}" "chmod +x /tmp/hild1-install; /tmp/hild1-install;";
+  exit
+fi
+
+INFO "No hostname specified. Executing on localhost."
+
+function ask {
+  while true; do
+    echo -e "$BLUE[QUESTION] $1$NC"
+    read ANSWER
+    case "$ANSWER" in
+      1) $2; return ;;
+      2) $3;;
+      3) return ;;
+      *) echo "$ANSWER is not a valid option." ;;
+    esac
+  done
+}
+
+function check_github_key {
+  #curl 'https://api.github.com/users/kagee/keys'
+  echo -n ""
+}
+
+TO_INSTALL=""
+function install_all_programs {
+  if [ "x" != "x$TO_INSTALL" ]; then
+    INFO "Installing $TO_INSTALL"
+    sudo apt-get install $TO_INSTALL
+  else
+    INFO "Nothing to install"
+  fi
+}
+
+function write_default {
+  INFO "Writing new $1"
+  case "$1" in
+    ".vimrc") echo "ZmlsZXR5cGUgcGx1Z2luIGluZGVudCBvbgpzZXQgdGFic3RvcD00IHNoaWZ0d2lkdGg9NCBleHBhbmR0YWIKYXV0b2NtZCBGaWxldHlwZSBzaCBzZXRsb2NhbCBleHBhbmR0YWIgdGFic3RvcD0yIHNoaWZ0d2lkdGg9MiBzb2Z0dGFic3RvcD0yCnNldCBsaXN0Y2hhcnM9bmJzcDrKrSx0YWI6Pi0sZXh0ZW5kczrCuyxwcmVjZWRlczrCqyx0cmFpbDrigKIgbGlzdAo=" |\
+      base64 -d > "$HOME/.vimrc"; return;; # 963cb694c68572353d67ddc60eeb1de1
+    *) ERROR "Missing argument to write";;
+  esac
+}
+
+function check_vimrc {
+  if [ -f "$HOME/.vimrc" ]; then
+    if (echo "963cb694c68572353d67ddc60eeb1de1 $HOME/.vimrc" | md5sum -c --status); then
+       INFO "Default .vimrc already installed"
+     else
+       ask "A .vimrc is already installed. 1:Overwrite 2:View 3:Skip" "write_default .vimrc" "less $HOME/.vimrc"
+      return
+    fi
+  else
+    write_default vimrc
+  fi
+}
+
+function add_sh_line {
+  for SHL in bash zsh; do
+    if (grep --silent "$1" "$HOME/.${SHL}rc"); then
+      INFO "Line probably installed in $HOME/.${SHL}rc, skipping:"
+      echo -e "\t ${@:2}"
+    else
+      INFO "Appending line to $HOME/.${SHL}rc:"
+      echo "${@:2}" | tee -a "$HOME/.${SHL}rc"
+    fi
+  done
+}
+
+function check_random_rantings {
+  mkdir -p "$HOME/bin"
+  if [ -d "$HOME/bin/random-rantings" ]; then
+    INFO "random-rantings is checked out"
+  else
+    ask "random-rantings is not checked out. 1:check out 3:skip" "git -C $HOME/bin clone git@github.com:Kagee/random-rantings.git"
+  fi
+  # Since we are not installing using a interactive shell, we must cheat"
+  if (grep --silent "bin/random-rantings" "$HOME/.$(basename "$SHELL")rc"); then
+    INFO 'random-rantings is installed in $PATH'
+  else
+    echo "$PATH"
+    ask 'random-rantings in not in $PATH. 1:Add (bash+zsh) 3:Skip' "add_sh_line random-rantings export PATH=\"\$PATH:$HOME/bin/random-rantings\""
+  fi
+
+}
+
+function check_installed_program {
+  if (command -v $1 >/dev/null); then
+    INFO "$1 is already installed"
+  else
+    ask "$1 is not installed. 1:Install 3:Don't install" "eval TO_INSTALL=\"$TO_INSTALL $1\""
+  fi
+}
+
+KEYS_TO_INSTALL=""
+function install_authorized_keys {
+  if [ "x" != "x$KEYS_TO_INSTALL" ]; then
+    INFO "Installing $KEYS_TO_INSTALL"
+    echo -e "$KEYS_TO_INSTALL" | while read KEY; do
+      echo "$KEY" >> "$HOME/.ssh/authorized_keys";
+    done
+  else
+    INFO "Nothing to install"
+  fi
+}
+
+function check_authorized_keys {
+  mkdir -p "$HOME/.ssh"
+  #touch "$HOME/.ssh/authorized_keys"
+  KEYMAT=$(echo "$1" | cut -d' ' -f1,2);
+  COMMENT=$(echo "$1" | cut -d' ' -f3);
+  if (grep --silent "$KEYMAT" "$HOME/.ssh/authorized_keys" 2>/dev/null); then
+    INFO "SSH key $COMMENT is installed"
+  else
+    ask "SSH key $COMMENT is not installed. 1:Install 3:Skip" "eval KEYS_TO_INSTALL=\"$KEYS_TO_INSTALL\n$1\""
+  fi
+}
+
+function check_ssh_key {
+  if [ ! -f "$HOME/.ssh/id_ed25519" ] || [ ! -f "$HOME/.ssh/id_ed25519.pub" ]; then
+    ask "No ED25519 key exists. 1:create 3: skip" "ssh-keygen -t ed25519"
+  else
+    INFO "ED25519 SSH key found"
+  fi
+}
+
+#check_ssh
+check_ssh_key
+check_authorized_keys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIri4TfiyNPfA5zCdrbafnoZAQat/QPhKkuIvVy/YmXA hildenae@nc-01539"
+check_authorized_keys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPyixZaDt23gfJlcAeQIjNAURaWVs6J7Q9xWK9NowNnd hildenae@grune.hild1.no"
+check_authorized_keys "ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBHyP8Q0k2l0mtumAIlwmGAilUQTCGuntxBfTiiOnGZQI5PoNk6WpdOHwqlJZndp65Wl4w5kUyQi9dXzX/K6K+sGTtLHn3ftU92ZqCPEBe5Z0gZPRAvbpCKFVSx7HqT5jMg== JuiceSSH@6P"
+install_authorized_keys
+
+for PROGRAM in git vim htop zsh; do 
+  check_installed_program $PROGRAM
+done
+install_all_programs
+
+#check_github_key
+check_random_rantings
+check_vimrc
