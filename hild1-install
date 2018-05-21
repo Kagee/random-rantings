@@ -14,7 +14,7 @@ function ERROR { if [ $DEBUG -gt 0 ]; then echo -e >&2 "$RED[${FUNCNAME[0]}] $1$
 
 if [ "x" != "x${1:-}" ]; then
   INFO "Source :${BASH_SOURCE[0]}."
-  if !(grep --silent "${1:-}" "$HOME/.ssh/config" 2>/dev/null); then
+  if ! (grep --silent "${1:-}" "$HOME/.ssh/config" 2>/dev/null); then
     ERROR "Failed to find host '${1:-}', exiting."
     exit
   fi
@@ -30,7 +30,7 @@ INFO "No hostname specified. Executing on localhost."
 function ask {
   while true; do
     echo -e "$BLUE[QUESTION] $1$NC"
-    read ANSWER
+    read -r ANSWER
     case "$ANSWER" in
       1) $2; return ;;
       2) $3;;
@@ -81,10 +81,10 @@ function add_sh_line {
   for SHL in bash zsh; do
     if (grep --silent "$1" "$HOME/.${SHL}rc"); then
       INFO "Line probably installed in $HOME/.${SHL}rc, skipping:"
-      echo -e "\t ${@:2}"
+      echo -e "\t ${*:2}"
     else
       INFO "Appending line to $HOME/.${SHL}rc:"
-      echo "${@:2}" | tee -a "$HOME/.${SHL}rc"
+      echo "${*:2}" | tee -a "$HOME/.${SHL}rc"
     fi
   done
 }
@@ -98,16 +98,18 @@ function check_random_rantings {
   fi
   # Since we are not installing using a interactive shell, we must cheat"
   if (grep --silent "bin/random-rantings" "$HOME/.$(basename "$SHELL")rc"); then
+    # shellcheck disable=SC2016
     INFO 'random-rantings is installed in $PATH'
   else
     echo "$PATH"
+    # shellcheck disable=SC2016
     ask 'random-rantings in not in $PATH. 1:Add (bash+zsh) 3:Skip' "add_sh_line random-rantings export PATH=\"\$PATH:$HOME/bin/random-rantings\""
   fi
 
 }
 
 function check_installed_program {
-  if (command -v $1 >/dev/null); then
+  if (command -v "$1" >/dev/null); then
     INFO "$1 is already installed"
   else
     ask "$1 is not installed. 1:Install 3:Don't install" "eval TO_INSTALL=\"$TO_INSTALL $1\""
@@ -118,7 +120,7 @@ KEYS_TO_INSTALL=""
 function install_authorized_keys {
   if [ "x" != "x$KEYS_TO_INSTALL" ]; then
     INFO "Installing $KEYS_TO_INSTALL"
-    echo -e "$KEYS_TO_INSTALL" | while read KEY; do
+    echo -e "$KEYS_TO_INSTALL" | while read -r KEY; do
       echo "$KEY" >> "$HOME/.ssh/authorized_keys";
     done
   else
