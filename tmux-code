@@ -53,9 +53,9 @@ __load() {
 }
 
 __reboot() {
-    if (ls /var/run/reboot-required 2>/dev/null) then 
-        printf '🔄 '; 
-    else 
+    if [ -f /var/run/reboot-required ]; then 
+        printf '🔄 ';
+    else
         printf ''; 
     fi
 }
