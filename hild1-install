@@ -169,7 +169,7 @@ check_authorized_keys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPyixZaDt23gfJlcAeQIj
 check_authorized_keys "ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBHyP8Q0k2l0mtumAIlwmGAilUQTCGuntxBfTiiOnGZQI5PoNk6WpdOHwqlJZndp65Wl4w5kUyQi9dXzX/K6K+sGTtLHn3ftU92ZqCPEBe5Z0gZPRAvbpCKFVSx7HqT5jMg== JuiceSSH@6P"
 install_authorized_keys
 
-for PROGRAM in git vim htop zsh; do 
+for PROGRAM in git vim htop zsh ncdu; do 
   check_installed_program $PROGRAM
 done
 install_all_programs
