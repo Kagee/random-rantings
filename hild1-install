@@ -60,8 +60,22 @@ function write_default {
   case "$1" in
     ".vimrc") echo "ZmlsZXR5cGUgcGx1Z2luIGluZGVudCBvbgpzZXQgdGFic3RvcD00IHNoaWZ0d2lkdGg9NCBleHBhbmR0YWIKYXV0b2NtZCBGaWxldHlwZSBzaCBzZXRsb2NhbCBleHBhbmR0YWIgdGFic3RvcD0yIHNoaWZ0d2lkdGg9MiBzb2Z0dGFic3RvcD0yCnNldCBsaXN0Y2hhcnM9bmJzcDrKrSx0YWI6Pi0sZXh0ZW5kczrCuyxwcmVjZWRlczrCqyx0cmFpbDrigKIgbGlzdAo=" |\
       base64 -d > "$HOME/.vimrc"; return;; # 963cb694c68572353d67ddc60eeb1de1
+    ".pushover.conf") echo "Creating new ~/.pushover.conf. Please enter values:"; read -p 'APP_TOKEN: ' AT; read -p 'USER_KEY: ' UK; echo -e "APP_TOKEN=\"$AT\"\nUSER_KEY=\"$UK\"" > "$HOME/.pushover.conf";;
     *) ERROR "Missing argument to write";;
   esac
+}
+
+function check_pushover {
+  if [ -f "$HOME/.pushover.conf" ]; then
+    if (echo "9e1cb080a7a9fd23d89aaf30577d3ffa $HOME/.pushover.conf" | md5sum -c --status); then
+       INFO "Default .pushover.conf already installed"
+     else
+       ask "A .pushover.conf is already installed. 1:Overwrite 2:View 3:Skip" "write_default .pushover.conf" "less $HOME/.vimrc"
+      return
+    fi
+  else
+    write_default .pushover.conf
+  fi
 }
 
 function check_vimrc {
@@ -162,4 +176,5 @@ install_all_programs
 
 #check_github_key
 check_random_rantings
+check_pushover
 check_vimrc
