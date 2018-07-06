@@ -1,0 +1,11 @@
+#! /bin/bash
+
+if [ "stop" = "$1" ]; then
+  systemctl --user stop pulseaudio.socket
+  systemctl --user stop pulseaudio.service
+elif [ "start" = "$1" ]; then
+  systemctl --user start pulseaudio.socket
+  systemctl --user start pulseaudio.service
+else
+  echo "Usage: $0 [start|stop]"
+fi
