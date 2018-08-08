@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # As an answer to https://old.reddit.com/r/linuxquestions/comments/952lfr/small_bash_problem_cating_text_into_a_shell_script/
+# All lines ouput the same sounds.
 
 # hildenae@wullie ~ $ cat foobar.txt
 # Hello world.
@@ -13,6 +14,10 @@
 
 # hildenae@wullie ~ $ ./say foobar.txt
 # Reading input from foobar.txt
+# Playing WAVE 'stdin' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
+
+# hildenae@wullie ~ $ ./say Hello world. How are you? I am fine.
+# Using argument as input
 # Playing WAVE 'stdin' : Signed 16 bit Little Endian, Rate 16000 Hz, Mono
 
 # hildenae@wullie ~ $ ./say "Hello world. How are you? I am fine."
@@ -47,7 +52,7 @@ else
   else
       # Arg is not a file, treat as input string
       echo 2>&1 "Using argument as input"
-      TEXT="$1"
+      TEXT="$@"
   fi
 fi
 
