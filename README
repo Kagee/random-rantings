@@ -28,3 +28,5 @@ mergem4achap requires mp4v2-utils (mp4chaps, mp4info), ffmpeg, bc, sed, grep
 
 hild1-install requires bash, grep, ssh, ssh-keygen, scp, apt-get
  Script for setting up a "default" install like i like it on a new machine
+
+say requires libttspico-utils and bash
