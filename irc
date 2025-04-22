@@ -1,2 +1,42 @@
-#! /bin/sh
-mosh g $@
+#!/bin/zsh --login
+# Add this to crontab as follows:
+# @reboot <path to script> cron
+
+# We want to have a session called "IRC"
+SESS="IRC"
+
+# Export a new TERM so we get proper colors
+export TERM=screen-256color
+
+# Check if the session exsists, if it does, become it
+if (tmux has-session -t "$SESS" 2>/dev/null); then
+  exec tmux a -t "$SESS"
+fi
+
+# Since this si started from crontab, we need to set up a
+# propber env if we want to use the shells
+export SHELL=/bin/zsh
+export LC_CTYPE=nb_NO.UTF-8
+. $HOME/.zshrc;
+
+# set up tmux
+tmux start-server
+
+# create a new tmux session, start weechat
+# with a alternate config dir
+tmux new-session -d -s "$SESS" weechat --dir $HOME/.weechat-work
+
+# create a new window start weechat
+# with the default working dir
+tmux new-window -t "$SESS":1 weechat --dir $HOME/.weechat-priv
+
+# create a new empty window
+tmux new-window -t "$SESS":3
+
+# Finished setup, attach to the tmux session,
+# but not if we are running from cron
+
+if [ "x$1" != "xcron" ]; then
+    exec tmux attach-session -t "$SESS"
+fi
+(
